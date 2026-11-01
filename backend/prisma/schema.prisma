@@ -1,0 +1,505 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String    @id @default(uuid())
+  name      String
+  slug      String    @unique
+  projects  Project[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Project {
+  id             String       @id @default(uuid())
+  name           String
+  description    String?
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  scans          Scan[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum ScanStatus {
+  PENDING
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+}
+
+model Scan {
+  id                    String                   @id @default(uuid())
+  targetIp              String
+  status                ScanStatus               @default(PENDING)
+  progress              Int                      @default(0)
+  currentModule         String                   @default("Module 1 - ASN & ISP Intelligence")
+  rawInput              String?
+  projectId             String?
+  project               Project?                 @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  asnRecord             ASN?
+  whoisRecord           WhoisRecord?
+  rdapRecord            RDAPRecord?
+  bgpRecord             BGPRecord?
+  geoRecord             GeoRecord?
+  threatIntel           ThreatIntel?
+  subnets               Subnet[]
+  hosts                 Host[]
+  dnsRecords            DNSRecord[]
+  subdomains            Subdomain[]
+  portServices          PortService[]
+  certificates          Certificate[]
+  nodes                 TopologyNode[]
+  edges                 TopologyEdge[]
+  firewallRecord        FirewallRecord?
+  wafRecord             WAFRecord?
+  idsRecord             IDSRecord?
+  dmzRecord             DMZRecord?
+  securityPostureScore  SecurityPostureScore?
+  recommendations       PerimeterRecommendation[]
+  history               History[]
+  errorMessage          String?
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
+}
+
+model ASN {
+  id             String   @id @default(uuid())
+  scanId         String   @unique
+  scan           Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  asnNumber      Int
+  asnName        String
+  organization   String
+  country        String
+  registry       String
+  cidr           String
+  prefixes       String[] @default([])
+  allocationDate String?
+  description    String?
+  createdAt      DateTime @default(now())
+}
+
+model Prefix {
+  id          String   @id @default(uuid())
+  asnNumber   Int
+  cidr        String
+  name        String?
+  description String?
+  createdAt   DateTime @default(now())
+}
+
+model WhoisRecord {
+  id             String   @id @default(uuid())
+  scanId         String   @unique
+  scan           Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  registrar      String?
+  owner          String?
+  creationDate   String?
+  expirationDate String?
+  updatedDate    String?
+  netRange       String?
+  cidr           String?
+  abuseEmail     String?
+  rawData        String?
+  createdAt      DateTime @default(now())
+}
+
+model RDAPRecord {
+  id                 String   @id @default(uuid())
+  scanId             String   @unique
+  scan               Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  networkName        String?
+  abuseContact       String?
+  adminContact       String?
+  country            String?
+  organization       String?
+  address            String?
+  registrationStatus String?
+  rawData            String?
+  createdAt          DateTime @default(now())
+}
+
+model BGPRecord {
+  id                String   @id @default(uuid())
+  scanId            String   @unique
+  scan              Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  originAsn         Int?
+  prefixes          String[] @default([])
+  peers             String[] @default([])
+  announcedNetworks String[] @default([])
+  routingInfo       String?
+  createdAt         DateTime @default(now())
+}
+
+model GeoRecord {
+  id         String   @id @default(uuid())
+  scanId     String   @unique
+  scan       Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  hostname   String?
+  reverseDns String?
+  country    String?
+  latitude   Float?
+  longitude  Float?
+  city       String?
+  region     String?
+  timezone   String?
+  isp        String?
+  org        String?
+  createdAt  DateTime @default(now())
+}
+
+model ThreatIntel {
+  id                      String   @id @default(uuid())
+  scanId                  String   @unique
+  scan                    Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  vtMaliciousScore        Int      @default(0)
+  abuseScore              Int      @default(0)
+  greyNoiseClassification String?
+  confidenceScore         Float    @default(90.0)
+  abuseReportsCount       Int      @default(0)
+  threatCategories        String[] @default([])
+  rawData                 String?
+  createdAt               DateTime @default(now())
+}
+
+model Subnet {
+  id        String   @id @default(uuid())
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  cidr      String
+  netmask   String?
+  totalIps  Int      @default(256)
+  gateway   String?
+  status    String   @default("DISCOVERED")
+  createdAt DateTime @default(now())
+}
+
+model Host {
+  id           String        @id @default(uuid())
+  scanId       String
+  scan         Scan          @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  ipAddress    String
+  hostname     String?
+  macAddress   String?
+  vendor       String?
+  osName       String?
+  osVersion    String?
+  osConfidence Float         @default(85.0)
+  status       String        @default("LIVE")
+  services     PortService[]
+  createdAt    DateTime      @default(now())
+}
+
+model DNSRecord {
+  id         String   @id @default(uuid())
+  scanId     String
+  scan       Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  domain     String
+  recordType String
+  value      String
+  ttl        Int      @default(300)
+  createdAt  DateTime @default(now())
+}
+
+model Subdomain {
+  id        String   @id @default(uuid())
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  subdomain String
+  ipAddress String?
+  source    String   @default("PASSIVE_DNS")
+  isLive    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+model PortService {
+  id          String   @id @default(uuid())
+  scanId      String
+  scan        Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  hostId      String?
+  host        Host?    @relation(fields: [hostId], references: [id], onDelete: Cascade)
+  port        Int
+  protocol    String   @default("TCP")
+  serviceName String
+  state       String   @default("OPEN")
+  banner      String?
+  product     String?
+  version     String?
+  confidence  Float    @default(90.0)
+  createdAt   DateTime @default(now())
+}
+
+model Certificate {
+  id           String   @id @default(uuid())
+  scanId       String
+  scan         Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  subject      String
+  issuer       String
+  validFrom    String
+  validTo      String
+  serialNumber String?
+  san          String[] @default([])
+  cipherSuites String[] @default([])
+  tlsVersion   String   @default("TLSv1.3")
+  isExpired    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+}
+
+model TopologyNode {
+  id        String   @id @default(uuid())
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  nodeId    String
+  label     String
+  nodeType  String   @default("HOST")
+  ip        String?
+  status    String   @default("ACTIVE")
+  createdAt DateTime @default(now())
+}
+
+model TopologyEdge {
+  id        String   @id @default(uuid())
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  edgeId    String
+  source    String
+  target    String
+  label     String?
+  protocol  String   @default("TCP")
+  createdAt DateTime @default(now())
+}
+
+// ==========================================
+// MODULE 03: SECURITY PERIMETER MODELS
+// ==========================================
+
+model FirewallRecord {
+  id              String   @id @default(uuid())
+  scanId          String   @unique
+  scan            Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  firewallVendor  String
+  detectionMethod String
+  isFiltered      Boolean  @default(true)
+  confidence      Float    @default(90.0)
+  createdAt       DateTime @default(now())
+}
+
+model WAFRecord {
+  id               String   @id @default(uuid())
+  scanId           String   @unique
+  scan             Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  wafVendor        String
+  detectedHeaders  String[] @default([])
+  cookieSignatures String[] @default([])
+  protectionStatus String   @default("ACTIVE_PROTECTION")
+  confidence       Float    @default(95.0)
+  createdAt        DateTime @default(now())
+}
+
+model IDSRecord {
+  id            String   @id @default(uuid())
+  scanId        String   @unique
+  scan          Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  idsVendor     String
+  detectionType String
+  confidence    Float    @default(85.0)
+  createdAt     DateTime @default(now())
+}
+
+model DMZRecord {
+  id              String   @id @default(uuid())
+  scanId          String   @unique
+  scan            Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  isDmz           Boolean  @default(true)
+  segmentType     String   @default("PUBLIC_DMZ")
+  boundaryGateway String?
+  createdAt       DateTime @default(now())
+}
+
+model SecurityPostureScore {
+  id                  String   @id @default(uuid())
+  scanId              String   @unique
+  scan                Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  overallScore        Int
+  postureRating       String
+  wafScore            Int
+  firewallScore       Int
+  headerSecurityScore Int
+  tlsScore            Int
+  scanDetectionChance Float
+  createdAt           DateTime @default(now())
+}
+
+model PerimeterRecommendation {
+  id          String   @id @default(uuid())
+  scanId      String
+  scan        Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  severity    String
+  category    String
+  title       String
+  description String
+  remediation String
+  createdAt   DateTime @default(now())
+}
+
+model History {
+  id        String   @id @default(uuid())
+  scanId    String
+  scan      Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  targetIp  String
+  summary   String?
+  riskLevel String   @default("LOW")
+  riskScore Int      @default(15)
+  timestamp DateTime @default(now())
+}
+
+// =========================================================================
+// MODULE 04: SURVEILLANCE & IOT ASSET INTELLIGENCE MODELS
+// =========================================================================
+model IoTAssetRecord {
+  id                String   @id @default(uuid())
+  scanId            String
+  scan              Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  ipAddress         String
+  macAddress        String?
+  deviceCategory    String   // IP_CAMERA, NVR_DVR, SMART_SWITCH, ACCESS_CONTROL, IOT_GATEWAY, EMBEDDED_LINUX
+  vendor            String
+  model             String?
+  firmwareVersion   String?
+  onvifSupported    Boolean  @default(false)
+  rtspSupported     Boolean  @default(false)
+  httpServer        String?
+  snmpEnabled       Boolean  @default(false)
+  riskLevel         String   @default("MEDIUM")
+  assetCriticality  Int      @default(50)
+  createdAt         DateTime @default(now())
+}
+
+model IoTFirmwareRecord {
+  id              String   @id @default(uuid())
+  scanId          String
+  scan            Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  vendor          String
+  version         String
+  architecture    String?
+  osName          String?
+  buildDate       String?
+  createdAt       DateTime @default(now())
+}
+
+model IoTVendorRecord {
+  id          String   @id @default(uuid())
+  scanId      String
+  scan        Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  vendorName  String
+  deviceCount Int      @default(1)
+  ouiPrefix   String?
+  createdAt   DateTime @default(now())
+}
+
+model IoTCveRecord {
+  id               String   @id @default(uuid())
+  scanId           String
+  scan             Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  cveId            String
+  cvssScore        Float
+  severity         String   // CRITICAL, HIGH, MEDIUM, LOW
+  summary          String
+  remediation      String?
+  createdAt        DateTime @default(now())
+}
+
+model IoTRiskResult {
+  id                    String   @id @default(uuid())
+  scanId                String   @unique
+  scan                  Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  overallRisk           String   @default("MEDIUM")
+  riskScore             Int      @default(50)
+  totalAssets           Int      @default(0)
+  surveillanceCount     Int      @default(0)
+  cveCount              Int      @default(0)
+  defaultCredFlagsCount Int      @default(0)
+  createdAt             DateTime @default(now())
+}
+
+// =========================================================================
+// MODULE 05 & MODULE 06: AI RISK ENGINE & UNIFIED SOC DASHBOARD MODELS
+// =========================================================================
+
+model AiDeviceClassifierRecord {
+  id                  String   @id @default(uuid())
+  scanId              String   @unique
+  scan                Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  predictedDeviceType String   @default("ENTERPRISE_WEB_APPLIANCE")
+  confidenceScore     Float    @default(96.5)
+  overallRiskRating   String   @default("MEDIUM")
+  overallRiskScore    Int      @default(45)
+  featuresAnalyzed    String[] @default([])
+  createdAt           DateTime @default(now())
+}
+
+model OsFingerprintRecord {
+  id               String   @id @default(uuid())
+  scanId           String   @unique
+  scan             Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  predictedOs      String   @default("Linux 5.x / Embedded ARM64")
+  ttl              Int      @default(64)
+  windowSize       Int      @default(65535)
+  dfBit            Boolean  @default(true)
+  matchConfidence  Float    @default(95.0)
+  createdAt        DateTime @default(now())
+}
+
+model TopologyInferenceRecord {
+  id                 String   @id @default(uuid())
+  scanId             String   @unique
+  scan               Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  inferredSubnets    String[] @default([])
+  nodeCount          Int      @default(5)
+  edgeCount          Int      @default(6)
+  graphDataJson      String
+  createdAt          DateTime @default(now())
+}
+
+model NetworkAnomalyRecord {
+  id                 String   @id @default(uuid())
+  scanId             String
+  scan               Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  targetIp           String
+  anomalyCluster     String
+  severity           String   @default("HIGH")
+  confidenceScore    Float    @default(94.2)
+  anomalyReason      String
+  createdAt          DateTime @default(now())
+}
+
+model AutomatedRiskScoreRecord {
+  id                 String   @id @default(uuid())
+  scanId             String   @unique
+  scan               Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  overallRiskScore   Int      @default(45)
+  cveRiskComponent   Int      @default(20)
+  openPortComponent  Int      @default(15)
+  vtAbuseComponent   Int      @default(10)
+  postureRating      String   @default("MEDIUM")
+  createdAt          DateTime @default(now())
+}
+
+model NlReportSummaryRecord {
+  id                 String   @id @default(uuid())
+  scanId             String   @unique
+  scan               Scan     @relation(fields: [scanId], references: [id], onDelete: Cascade)
+  executiveSummary   String
+  keyThreats         String[] @default([])
+  actionPlan         String[] @default([])
+  llmModelUsed       String   @default("GPT-4o / Antigravity AI Core v2")
+  createdAt          DateTime @default(now())
+}
+
