@@ -1,0 +1,56 @@
+{
+  "trainedAtEpoch": 1787314289,
+  "device_classifier": {
+    "accuracy": 0.9861,
+    "classes": [
+      "Router / Firewall",
+      "Switch (Managed)",
+      "IP Surveillance Camera",
+      "NVR / DVR Recorder",
+      "NAS Storage",
+      "Network Printer",
+      "Web Server",
+      "Database Server",
+      "Mail Server",
+      "DNS Server",
+      "Workstation / Endpoint",
+      "IoT / Embedded Device"
+    ],
+    "perClassF1": {
+      "DNS Server": 0.957,
+      "Database Server": 1.0,
+      "IP Surveillance Camera": 0.957,
+      "IoT / Embedded Device": 1.0,
+      "Mail Server": 0.96,
+      "NAS Storage": 1.0,
+      "NVR / DVR Recorder": 0.96,
+      "Network Printer": 1.0,
+      "Router / Firewall": 1.0,
+      "Switch (Managed)": 1.0,
+      "Web Server": 1.0,
+      "Workstation / Endpoint": 1.0
+    }
+  },
+  "os_fingerprint": {
+    "accuracy": 0.916,
+    "classes": [
+      "Linux",
+      "Windows",
+      "Network OS (Cisco/Mikrotik)",
+      "Embedded/IoT RTOS",
+      "BSD/macOS"
+    ],
+    "perClassF1": {
+      "BSD/macOS": 0.826,
+      "Embedded/IoT RTOS": 0.909,
+      "Linux": 0.884,
+      "Network OS (Cisco/Mikrotik)": 0.969,
+      "Windows": 1.0
+    },
+    "nanTolerantFeatures": [
+      "windowSize",
+      "dfBit",
+      "mss"
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+ENV/
+env.bak
+.py.orig
+.py.backup
+
+# Environment variables - never commit real keys
+.env
+
+# Project-specific
+/static/index.html.bak
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Vercel / Node (if you add node later)
+node_modules/
+.next/
+out/
+
+# AI service caches
+ai-service/__pycache__/
