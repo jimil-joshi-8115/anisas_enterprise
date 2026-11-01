@@ -6,6 +6,21 @@ reconnaissance and renders the results in a browser dashboard (SOC-style UI).
 The backend also serves the frontend, so a single Python process is all you need.
 
 
+REPOSITORY LAYOUT
+-----------------
+ai-service/     The working application (Python / FastAPI + the browser UI).
+                This is what you run. Everything below is optional reference code.
+backend/        Reference Node/TypeScript API (Express + Prisma + Postgres/Redis).
+frontend/       Reference React/Vite client for that Node API.
+docker-compose.yml  Brings up Postgres + Redis + backend + frontend together.
+run.bat         One-click launcher for the Python app (Windows).
+start_server.py Starts the Python app with uvicorn (used for deployment).
+
+Note: the Python app in ai-service/ is self-contained and does not require
+Node.js, Postgres or Redis. The backend/ and frontend/ folders are kept as the
+original full-stack reference and are run separately (see their package.json).
+
+
 WHAT IT DOES
 ------------
 - ASN / IP intelligence (Shodan, VirusTotal, Censys, OTX, AbuseIPDB, IPInfo)
