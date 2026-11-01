@@ -4,7 +4,7 @@ import { isValidIP, singleScanSchema, bulkScanSchema } from '../utils/validators
 import { ASNService } from '../services/asn.service';
 import { asnQueue } from '../queue/asn.queue';
 import { memoryStore } from '../db/prisma';
-import { v4 as uuidv4 } from 'crypto';
+import { randomUUID } from 'crypto';
 
 export class ASNController {
   public static async createScan(req: Request, res: Response): Promise<Response> {

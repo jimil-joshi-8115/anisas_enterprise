@@ -1,20 +1,24 @@
-version: '3.8'
-
+# ANISAS full stack: FastAPI service + Node API + React client + Postgres/Redis.
+#
+#   docker compose up --build
+#
+# Then open http://localhost:3000 (UI) or http://localhost:9000 (FastAPI UI).
+# Override the development credentials below with a local .env file.
 services:
   postgres:
     image: postgres:15-alpine
     container_name: anisas-postgres
-    restart: always
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: anisas
-      POSTGRES_PASSWORD: anisas_secure_password
-      POSTGRES_DB: anisas_db
+      POSTGRES_USER: ${POSTGRES_USER:-anisas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-anisas_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-anisas_db}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U anisas -d anisas_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-anisas} -d ${POSTGRES_DB:-anisas_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -22,7 +26,7 @@ services:
   redis:
     image: redis:7-alpine
     container_name: anisas-redis
-    restart: always
+    restart: unless-stopped
     ports:
       - "6379:6379"
     volumes:
@@ -38,31 +42,40 @@ services:
       context: ./ai-service
       dockerfile: Dockerfile
     container_name: anisas-ai-service
-    restart: always
+    restart: unless-stopped
     ports:
       - "9000:9000"
     environment:
-      - PORT=9000
+      PORT: "9000"
+      SHODAN_API_KEY: ${SHODAN_API_KEY:-}
+      VIRUSTOTAL_API_KEY: ${VIRUSTOTAL_API_KEY:-}
+      CENSYS_API_ID: ${CENSYS_API_ID:-}
+      CENSYS_API_SECRET: ${CENSYS_API_SECRET:-}
+      OTX_API_KEY: ${OTX_API_KEY:-}
+      ABUSEIPDB_API_KEY: ${ABUSEIPDB_API_KEY:-}
+      IPINFO_TOKEN: ${IPINFO_TOKEN:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:9000/"]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 40s
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: anisas-backend
-    restart: always
+    restart: unless-stopped
     ports:
       - "5000:5000"
     environment:
-      - PORT=5000
-      - DATABASE_URL=postgresql://anisas:anisas_secure_password@postgres:5432/anisas_db?schema=public
-      - REDIS_URL=redis://redis:6379
-      - AI_SERVICE_URL=http://ai-service:9000
-      - JWT_SECRET=anisas_enterprise_super_secret_jwt_key_2026
+      PORT: "5000"
+      DATABASE_URL: postgresql://${POSTGRES_USER:-anisas}:${POSTGRES_PASSWORD:-anisas_dev_password}@postgres:5432/${POSTGRES_DB:-anisas_db}?schema=public
+      REDIS_URL: redis://redis:6379
+      AI_SERVICE_URL: http://ai-service:9000
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
     depends_on:
       postgres:
         condition: service_healthy
@@ -76,7 +89,7 @@ services:
       context: ./frontend
       dockerfile: Dockerfile
     container_name: anisas-frontend
-    restart: always
+    restart: unless-stopped
     ports:
       - "3000:80"
     depends_on:

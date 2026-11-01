@@ -1,0 +1,11 @@
+# Local-only artefacts — never shipped into the image
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.log
+.git/
+.gitignore
+Dockerfile
+.dockerignore

@@ -1,29 +1,74 @@
-# Python
+# ── Secrets — never commit ───────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# ── Python ───────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 *$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 venv/
+.venv/
 env/
 ENV/
 env.bak
 .py.orig
 .py.backup
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
 
-# Environment variables - never commit real keys
-.env
-
-# Project-specific
-/static/index.html.bak
-*.log
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Vercel / Node (if you add node later)
+# ── Node ─────────────────────────────────────────────────────────────────────
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 .next/
 out/
+.nuxt/
+.cache/
+coverage/
+dist/
+*.tsbuildinfo
 
-# AI service caches
+# ── Logs & databases ─────────────────────────────────────────────────────────
+*.log
+logs/
+*.sqlite
+*.sqlite3
+*.db
+
+# ── Editors / OS ─────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── Project-specific ─────────────────────────────────────────────────────────
+/static/index.html.bak
 ai-service/__pycache__/

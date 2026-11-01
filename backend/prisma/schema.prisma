@@ -65,6 +65,17 @@ model Scan {
   securityPostureScore  SecurityPostureScore?
   recommendations       PerimeterRecommendation[]
   history               History[]
+  iotAssets             IoTAssetRecord[]
+  iotFirmware           IoTFirmwareRecord[]
+  iotVendors            IoTVendorRecord[]
+  iotCves               IoTCveRecord[]
+  iotRisk               IoTRiskResult?
+  aiDeviceClassifier    AiDeviceClassifierRecord?
+  osFingerprint         OsFingerprintRecord?
+  topologyInference     TopologyInferenceRecord?
+  networkAnomalies      NetworkAnomalyRecord[]
+  automatedRiskScore    AutomatedRiskScoreRecord?
+  nlReportSummary       NlReportSummaryRecord?
   errorMessage          String?
   createdAt             DateTime                 @default(now())
   updatedAt             DateTime                 @updatedAt

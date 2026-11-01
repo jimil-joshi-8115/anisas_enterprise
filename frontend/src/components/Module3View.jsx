@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, Cloud, ShieldAlert, Brain, ArrowRight, UserShield, Network, GraduationCap } from 'lucide-react';
+import { Shield, Cloud, ShieldAlert, Brain, ArrowRight, ShieldCheck, Network, GraduationCap } from 'lucide-react';
 
 export default function Module3View({ onNavigate }) {
   return (
@@ -85,7 +85,7 @@ export default function Module3View({ onNavigate }) {
       <div className="soc-card p-6 space-y-4">
         <div className="flex items-center justify-between border-b border-[#1E293B] pb-3">
           <h3 className="text-xs font-extrabold text-white uppercase tracking-wider flex items-center space-x-2">
-            <UserShield className="w-4 h-4 text-[#00F0FF]" />
+            <ShieldCheck className="w-4 h-4 text-[#00F0FF]" />
             <span>EXECUTIVE SECURITY RECOMMENDATIONS</span>
           </h3>
           <span className="text-xs text-[#FFB800] font-bold uppercase tracking-wider">

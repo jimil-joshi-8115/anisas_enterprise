@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Network, Globe, Building2, Sitemap, Bug, ArrowRight, Play, Crosshair, IdCard, Route, MapPin, Brain } from 'lucide-react';
+import { Network, Globe, Building2, GitFork, Bug, ArrowRight, Play, Crosshair, Contact, Route, MapPin, Brain } from 'lucide-react';
 
 export default function Module1View({ onNavigate }) {
   const [targetIp, setTargetIp] = useState('187.245.231.228');
@@ -91,7 +91,7 @@ export default function Module1View({ onNavigate }) {
         <div className="soc-card p-5 space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-[11px] uppercase tracking-wider">
             <span>SUBNET CIDR</span>
-            <Sitemap className="w-4 h-4 text-[#10B981]" />
+            <GitFork className="w-4 h-4 text-[#10B981]" />
           </div>
           <div className="text-xl font-black text-[#10B981] tracking-tight">{subnetCidr}</div>
           <div className="text-xs text-slate-400 font-mono">Range: {subnetRange}</div>
@@ -129,7 +129,7 @@ export default function Module1View({ onNavigate }) {
               
               <div className="p-4 rounded-xl bg-[#060913] border border-[#1E293B] space-y-2">
                 <div className="text-[11px] font-bold text-[#00F0FF] uppercase flex items-center space-x-2">
-                  <IdCard className="w-4 h-4" />
+                  <Contact className="w-4 h-4" />
                   <span>LIVE WHOIS / RDAP REGISTRY</span>
                 </div>
                 <div className="space-y-1 text-xs">
