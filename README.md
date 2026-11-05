@@ -596,7 +596,7 @@ Before exposing ANISAS beyond localhost:
 
 Built as the **ANISAS Enterprise Cyber Intelligence Platform** (Modules 01 to 06) for the GTU Cyber Bootcamp, with FastAPI, scikit-learn, networkx, ReportLab and d3.
 
-**Team:** [Your Name] and Harshal Patel
+**Team:** Joshi Jimil and Harshal Patel
 
 ## License
 
